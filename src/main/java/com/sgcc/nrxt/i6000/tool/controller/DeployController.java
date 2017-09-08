@@ -2,6 +2,7 @@ package com.sgcc.nrxt.i6000.tool.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sgcc.nrxt.i6000.tool.service.DeployService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,9 @@ public class DeployController {
 
     @PostMapping
     @ResponseBody
-    public List deploy(@RequestBody String json){
+    public ObjectNode deploy(@RequestBody String json){
         logger.info("deploy json=" + json);
-        List list = new ArrayList<>();
+        ObjectNode object = JsonNodeFactory.instance.objectNode();
         try {
             ObjectNode objectNode = new ObjectMapper().readValue(json, ObjectNode.class);
 
@@ -58,12 +59,14 @@ public class DeployController {
             String service = this.deployService.createService(name, project, servicePortArr.toString());
             String route = this.deployService.createRouter(name, project);
 
-            list.add(deployConfig);
-            list.add(service);
+            object.put("deployConfig", deployConfig);
+            object.put("service", service);
+            object.put("route", route);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return list;
+        return object;
     }
 
     /*@DeleteMapping("/{id}")
